@@ -1,0 +1,24 @@
+
+<style>
+   .box{
+margin:10px;
+padding:20px;
+   }
+   .heading{
+font-size:20px;
+   }
+   .btn{
+
+   }
+</style>
+
+
+<div class="box">
+<p class="heading"> Word To PDF</p> 
+<form method="post" class="custom-file-input" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="asd" class="btn">Load</button>
+  </form>
+</div>
+

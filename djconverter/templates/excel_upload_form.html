@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Excel to PDF Conversion</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload and Convert</button>
+  </form>
+  {% if error %}
+    <p style="color: red">{{ error }}</p>
+  {% endif %}
+{% endblock %}
