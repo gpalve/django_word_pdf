@@ -25,6 +25,6 @@ def upload_file(request):
         form = FileUploadForm()
     return render(request, 'upload_form.html', {'form': form})
 
-# This is for xls
+# This is for xls file and Latest excel
 def upload_xls():
     return
