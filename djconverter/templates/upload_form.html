@@ -1,14 +1,95 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div class="row m-3">
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Word To PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file </h5>
+          <p class="card-text"></p>
+          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+            {% csrf_token %} {{ form.as_p }}
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <br>
+            <button type="asd" class="btn btn-danger">Load and Convert</button>
+          </form>
+            </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Word To PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file </h5>
+          <p class="card-text"></p>
+          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+            {% csrf_token %} {{ form.as_p }}
+            <button type="asd" class="btn btn-danger">Load and Convert</button>
+          </form>
+            </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Word To PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file </h5>
+          <p class="card-text"></p>
+          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+            {% csrf_token %} {{ form.as_p }}
+            <button type="asd" class="btn btn-danger">Load and Convert</button>
+          </form>
+            </div>
+      </div>
+    </div>
 
-{% extends "base.html" %}
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Word To PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file </h5>
+          <p class="card-text"></p>
+          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+            {% csrf_token %} {{ form.as_p }}
+            <button type="asd" class="btn btn-danger">Load and Convert</button>
+          </form>
+            </div>
+      </div>
+    </div>
 
-{% block content %}
-<div class="box">
-<p class="heading"> Word To PDF</p> 
-<form method="post" class="custom-file-input" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="asd" class="btn">Load</button>
-  </form>
-</div>
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Word To PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file </h5>
+          <p class="card-text"></p>
+          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+            {% csrf_token %} {{ form.as_p }}
+            <button type="asd" class="btn btn-danger">Load and Convert</button>
+          </form>
+            </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Word To PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file </h5>
+          <p class="card-text"></p>
+          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+            {% csrf_token %} {{ form.as_p }}
+            <button type="asd" class="btn btn-danger">Load and Convert</button>
+          </form>
+            </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>   
+
+ 
 {% endblock %}
-
