@@ -5,6 +5,7 @@ from .forms import FileUploadForm
 from .models import UploadedFile
 from docx2pdf import convert
 
+# This function is only for word to pdf
 def upload_file(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
@@ -23,3 +24,7 @@ def upload_file(request):
     else:
         form = FileUploadForm()
     return render(request, 'upload_form.html', {'form': form})
+
+# This is for xls
+def upload_xls():
+    return
