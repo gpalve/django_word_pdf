@@ -4,9 +4,30 @@ from io import BytesIO
 from .forms import FileUploadForm , ExcelToPDF
 from .models import UploadedFile
 from docx2pdf import convert
+from io import BytesIO
+from django.http import FileResponse
+from django.shortcuts import render
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from openpyxl import load_workbook
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import xlrd
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
 # This function is only for word to pdf
-def upload_file(request):
+def index(request):
+    context = {
+        'form': FileUploadForm(),
+        'excel_to_pdf': ExcelToPDF()
+    }
+    return render(request, 'upload_form.html',context)
+
+def upload_word(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -21,16 +42,72 @@ def upload_file(request):
             pdf_file = BytesIO(pdf_bytes)
             response = FileResponse(pdf_file, as_attachment=True, filename=uploaded_file.file.name.replace('.docx', '.pdf'))
             return response
-    else:
-        context = {
-        'form': FileUploadForm(),
-        'excel_to_pdf': ExcelToPDF()
-    }
-    return render(request, 'upload_form.html',context)
+    
+      
 
 # This is for xls file and Latest excel
-def upload_xls():
-    return
+def upload_xls(request):
+    if request.method == 'POST':
+        # Get the uploaded file from the form
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = form.save()
+            # Load the workbook from the uploaded file
+            if uploaded_file.file.name.endswith('.xls'):
+                workbook = xlrd.open_workbook(file_contents=uploaded_file.read())
+                sheets = workbook.sheet_names()
+            elif uploaded_file.file.name.endswith('.xlsx'):
+                workbook = load_workbook(uploaded_file.file)
+                sheets = workbook.sheetnames
+            else:
+                raise ValueError('Unsupported file type')
+            # Create the PDF file
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            elements = []
+            styles = getSampleStyleSheet()
+            style = ParagraphStyle('table', fontSize=10, leading=12)
+            table_style = TableStyle([
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke)
+            ])
+            for sheet_name in sheets:
+                # Get the data from the sheet
+                if uploaded_file.file.name.endswith('.xls'):
+                    worksheet = workbook.sheet_by_name(sheet_name)
+                    data = []
+                    for row_num in range(worksheet.nrows):
+                        row = worksheet.row_values(row_num)
+                        data.append(row)
+                elif uploaded_file.file.name.endswith('.xlsx'):
+                    worksheet = workbook[sheet_name]
+                    data = []
+                    for row in worksheet.iter_rows(values_only=True):
+                        data.append(row)
+                else:
+                    raise ValueError('Unsupported file type')
+                # Create table and apply style
+                table_data = []
+                for row in data:
+                    table_data.append([Paragraph(str(cell), style) for cell in row])
+                table = Table(table_data)
+                table.setStyle(table_style)
+                elements.append(table)
+            # Build and save the PDF file to the default storage
+            doc.build(elements)
+            buffer.seek(0)
+            output_file = ContentFile(buffer.getvalue())
+            output_path = uploaded_file.file.name.replace('.xls', '.pdf').replace('.xlsx', '.pdf')
+            default_storage.save(output_path, output_file)
+            # Return the PDF file as a download
+            response = FileResponse(buffer, as_attachment=True, filename=output_path)
+            return response
+
 
 def my_view(request):
     file_upload_form = FileUploadForm()

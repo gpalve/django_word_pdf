@@ -31,7 +31,7 @@
         <div class="card-body">
           <h5 class="card-title">Select file </h5>
           <p class="card-text"></p>
-          <form method="post" class="custom-file-input" enctype="multipart/form-data">
+          <form method="post" class="custom-file-input" enctype="multipart/form-data" action="word/">
             {% csrf_token %} {{ form.as_p }}
             <div class="progress">
               <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -46,25 +46,7 @@
         
       </div>
     
-      <script>
-        document.querySelector('.custom-file-input').addEventListener('submit', function() {
-          var progressBar = document.querySelector('.progress-bar');
-          var progressText = document.querySelector('#progress-text');
-          var width = 0;
-          var intervalId = setInterval(function() {
-            if (width >= 100) {
-              clearInterval(intervalId);
-              progressText.textContent = '';
-              if(width >= 100)
-              document.getElementById("msg").innerHTML = "Success! Your download will start...";
-            } else {
-              width++;
-              progressBar.style.width = width + '%';
-              progressText.textContent = width + '%';
-            }
-          }, 10);
-        });
-      </script>
+  
     </div>
     <div class="col-md-4">
       <div class="card m-2">
@@ -76,8 +58,15 @@
             method="post"
             class="custom-file-input"
             enctype="multipart/form-data"
+            action="xls/"
           >
             {% csrf_token %} {{ excel_to_pdf.as_p }}
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              <span id="progress-text">0%</span>
+             
+            </div>
+            <p id="msg" style="color:green"></p>
             <button type="submit" class="btn btn-info">Load and Convert Excel</button>
           </form>
         </div>
@@ -89,6 +78,28 @@
   
   </div>
 </div>
+
+<script>
+  document.querySelectorAll('.custom-file-input').forEach(function(form) {
+    form.addEventListener('submit', function() {
+      var progressBar = form.querySelector('.progress-bar');
+      var progressText = form.querySelector('#progress-text');
+      var width = 0;
+      var intervalId = setInterval(function() {
+        if (width >= 100) {
+          clearInterval(intervalId);
+          progressText.textContent = '';
+          if(width >= 100)
+          form.querySelector("#msg").innerHTML = "Success! Your download will start...";
+        } else {
+          width++;
+          progressBar.style.width = width + '%';
+          progressText.textContent = width + '%';
+        }
+      }, 10);
+    });
+  });
+</script>
 
   <!-- <script>
     const loader = document.getElementById('loader');
