@@ -27,7 +27,7 @@
   <div class="row m-3">
     <div class="col-md-4">
       <div class="card m-2">
-        <h5 class="card-header">Word To PDF</h5>
+        <h5 class="card-header">Word 🗎 To PDF 📁<i class="fa fa-heart"></i></h5>
         <div class="card-body">
           <h5 class="card-title">Select file </h5>
           <p class="card-text"></p>
@@ -40,7 +40,7 @@
             </div>
            
             <p id="msg" style="color:green"></p>
-            <button type="submit" class="btn btn-success">Loadd and Convert</button>
+            <button type="submit" class="btn btn-success">Load and Convert</button>
           </form>
         </div>
         
@@ -78,83 +78,15 @@
             enctype="multipart/form-data"
           >
             {% csrf_token %} {{ excel_to_pdf.as_p }}
-            <button type="asd" class="btn btn-info">Load and Convert</button>
+            <button type="submit" class="btn btn-info">Load and Convert Excel</button>
           </form>
         </div>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card m-2">
-        <h5 class="card-header">Word To PDF</h5>
-        <div class="card-body">
-          <h5 class="card-title">Select file</h5>
-          <p class="card-text"></p>
-          <form
-            method="post"
-            class="custom-file-input"
-            enctype="multipart/form-data"
-          >
-            {% csrf_token %} {{ form.as_p }}
-            <button type="asd" class="btn btn-danger">Load and Convert</button>
-          </form>
-        </div>
-      </div>
-    </div>
+    
 
-    <div class="col-md-4">
-      <div class="card m-2">
-        <h5 class="card-header">Word To PDF</h5>
-        <div class="card-body">
-          <h5 class="card-title">Select file</h5>
-          <p class="card-text"></p>
-          <form
-            method="post"
-            class="custom-file-input"
-            enctype="multipart/form-data"
-          >
-            {% csrf_token %} {{ form.as_p }}
-            <button type="asd" class="btn btn-danger">Load and Convert</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card m-2">
-        <h5 class="card-header">Word To PDF..........</h5>
-        <div class="card-body">
-          <h5 class="card-title">Select file</h5>
-          <p class="card-text"></p>
-          <form
-            method="post"
-            class="custom-file-input"
-            enctype="multipart/form-data"
-          >
-            {% csrf_token %} {{ excel_to_pdf.as_p }}
-            <button type="asd" class="btn btn-danger">Load and Convert</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card m-2">
-        <h5 class="card-header">Word To PDF++++</h5>
-        <div class="card-body">
-          <h5 class="card-title">Select file</h5>
-          <p class="card-text"></p>
-          <form
-            method="post"
-            class="custom-file-input"
-            enctype="multipart/form-data"
-          >
-            {% csrf_token %} {{ excel_to_pdf.as_p }}
-            <button type="asd" class="btn btn-danger">Load and Convert</button>
-          </form>
-        </div>
-      </div>
-    </div>
+  
   </div>
 </div>
 
