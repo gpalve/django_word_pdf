@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import FileResponse
 from io import BytesIO
-from .forms import FileUploadForm
+from .forms import FileUploadForm , ExcelToPDF
 from .models import UploadedFile
 from docx2pdf import convert
 
@@ -22,9 +22,21 @@ def upload_file(request):
             response = FileResponse(pdf_file, as_attachment=True, filename=uploaded_file.file.name.replace('.docx', '.pdf'))
             return response
     else:
-        form = FileUploadForm()
-    return render(request, 'upload_form.html', {'form': form})
+        context = {
+        'form': FileUploadForm(),
+        'excel_to_pdf': ExcelToPDF()
+    }
+    return render(request, 'upload_form.html',context)
 
 # This is for xls file and Latest excel
 def upload_xls():
     return
+
+def my_view(request):
+    file_upload_form = FileUploadForm()
+    contact_form = ExcelToPDF()
+    context = {
+        'file_upload_form': file_upload_form,
+        'contact_form': contact_form
+    }
+    return render(request, 'my_template.html', context)
