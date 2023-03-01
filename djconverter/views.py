@@ -19,8 +19,6 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 import os
-from wand.image import Image
-from wand.display import display
 import PyPDF2
 import cv2
 import numpy as np
