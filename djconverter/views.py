@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import FileResponse, HttpResponse
 from io import BytesIO
-from .forms import FileUploadForm , ExcelToPDF,PdfToTxt
+from .forms import FileUploadForm , ExcelToPDF,PdfToTxt,bgr,PptTOPdf
 from .models import UploadedFile
 from docx2pdf import convert
 from io import BytesIO
@@ -18,17 +18,25 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
-
+import os
 from wand.image import Image
 from wand.display import display
+import PyPDF2
+import cv2
+import numpy as np
+import comtypes
+import comtypes.client
 
+comtypes.CoInitialize()
 
 # This function is only for word to pdf
 def index(request):
     context = {
         'form': FileUploadForm(),
         'excel_to_pdf': ExcelToPDF(),
-        'pdf_to_txt': PdfToTxt()
+        'pdf_to_txt': PdfToTxt(),
+        'ppt_to_pdf': PptTOPdf(),
+        'bgr': bgr()
     }
     return render(request, 'upload_form.html',context)
 
@@ -114,33 +122,107 @@ def upload_xls(request):
             response = FileResponse(buffer, as_attachment=True, filename=output_path)
             return response
 
+## REMOVE BACKGROUND #############################################
+
+def remove_background(image_path):
+    img = cv2.imread(image_path)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    mask = np.zeros(img.shape[:2], np.uint8)
+    cv2.drawContours(mask, contours, -1, 255, -1)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    alpha = np.ones(result.shape[:2], dtype=np.uint8)*255
+    alpha[mask == 0] = 0
+    result = cv2.cvtColor(result, cv2.COLOR_BGR2BGRA)
+    result[:, :, 3] = alpha
+    filename = os.path.splitext(image_path)[0] + '.png'
+    cv2.imwrite(filename, result)
+    return result
+  
+
+
+
+def remove_background_view(request):
+    if request.method == 'POST':
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = form.save()
+            # Perform processing on the uploaded file here
+            input_path = uploaded_file.file.path
+            output_path = input_path.replace('.png', '_no_bg.png')
+            result = remove_background(input_path)
+            cv2.imwrite(output_path, result)
+            # Return the resulting image as a download
+            with open(output_path, 'rb') as image_file:
+                image_bytes = image_file.read()
+            image_file = BytesIO(image_bytes)
+            response = FileResponse(image_file, as_attachment=True, filename=uploaded_file.file.name.replace('.png', '_no_bg.png'))
+            response['Content-Type'] = 'image/png'
+            return response
+
+
 
 def convert_pdf_to_images(pdf_file_path):
     with Image(filename=pdf_file_path) as pdf_image:
-        return pdf_image
+        with pdf_image.convert('png') as converted:
+            return converted.sequence
 
 def upload_pdf(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             uploaded_file = form.save()
-            # Convert the uploaded file to an image
+            # Perform processing on the uploaded file here
             input_path = uploaded_file.file.path
-            image = convert_pdf_to_images(input_path)
-            # Perform processing on the image here
-            # ...
-            # Return the image as a download
-            with open(image.filename, 'rb') as image_file:
-                image_bytes = image_file.read()
-            image_file = BytesIO(image_bytes)
-            response = FileResponse(image_file, as_attachment=True, filename=uploaded_file.file.name.replace('.pdf', '.png'))
+            output_path = input_path.replace('.pdf', '.txt')
+            with open(input_path, 'rb') as pdf_file:
+                pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+                num_pages = pdf_reader.getNumPages()
+                text = ''
+                for i in range(num_pages):
+                    page = pdf_reader.getPage(i)
+                    text += page.extractText()
+            with open(output_path, 'w', encoding='utf-8') as text_file:
+                text_file.write(text)
+            # Return the text file as a download
+            with open(output_path, 'rb') as text_file:
+                text_bytes = text_file.read()
+            text_file = BytesIO(text_bytes)
+            response = FileResponse(text_file, as_attachment=True, filename=uploaded_file.file.name.replace('.pdf', '.txt'))
             return response
-        
-def my_view(request):
-    file_upload_form = FileUploadForm()
-    contact_form = ExcelToPDF()
-    context = {
-        'file_upload_form': file_upload_form,
-        'contact_form': contact_form
-    }
-    return render(request, 'my_template.html', context)
+
+def read_pdf(input_path):
+    with open(input_path, 'rb') as input_file:
+        pdf_reader = PyPDF2.PdfReader(input_file)
+        num_pages = len(pdf_reader.pages)
+        for page in pdf_reader.pages:
+            # Do something with each page
+            pass
+
+## PPT TO PDF #############################################
+
+
+def ppt_to_pdf(input_path, output_path):
+    powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
+    powerpoint.Visible = True
+    slides = powerpoint.Presentations.Open(input_path)
+    slides.SaveAs(output_path, FileFormat=32)
+    slides.Close()
+    powerpoint.Quit()
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = form.save()
+            # Perform processing on the uploaded file here
+            input_path = uploaded_file.file.path
+            output_path = input_path.replace('.ppt', '.pdf')
+            ppt_to_pdf(input_path, output_path)
+            # Return the PDF file as a download
+            with open(output_path, 'rb') as pdf_file:
+                pdf_bytes = pdf_file.read()
+            pdf_file = BytesIO(pdf_bytes)
+            response = FileResponse(pdf_file, as_attachment=True, filename=uploaded_file.file.name.replace('.ppt', '.pdf'))
+            return response

@@ -16,3 +16,13 @@ class PdfToTxt(forms.ModelForm):
     class Meta:
         model = UploadedFile
         fields = ['file']
+
+class bgr(forms.ModelForm):
+    class Meta:
+        model = UploadedFile
+        fields = ['file']
+
+class PptTOPdf(forms.ModelForm):
+    class Meta:
+        model = UploadedFile
+        fields = ['file']
