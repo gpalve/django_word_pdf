@@ -11,3 +11,8 @@ class ExcelToPDF(forms.ModelForm):
     class Meta:
         model = UploadedFile
         fields = ['file']
+
+class PdfToTxt(forms.ModelForm):
+    class Meta:
+        model = UploadedFile
+        fields = ['file']

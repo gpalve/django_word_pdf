@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from io import BytesIO
-from .forms import FileUploadForm , ExcelToPDF
+from .forms import FileUploadForm , ExcelToPDF,PdfToTxt
 from .models import UploadedFile
 from docx2pdf import convert
 from io import BytesIO
@@ -19,13 +19,19 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
+from wand.image import Image
+from wand.display import display
+
+
 # This function is only for word to pdf
 def index(request):
     context = {
         'form': FileUploadForm(),
-        'excel_to_pdf': ExcelToPDF()
+        'excel_to_pdf': ExcelToPDF(),
+        'pdf_to_txt': PdfToTxt()
     }
     return render(request, 'upload_form.html',context)
+
 
 def upload_word(request):
     if request.method == 'POST':
@@ -109,6 +115,27 @@ def upload_xls(request):
             return response
 
 
+def convert_pdf_to_images(pdf_file_path):
+    with Image(filename=pdf_file_path) as pdf_image:
+        return pdf_image
+
+def upload_pdf(request):
+    if request.method == 'POST':
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = form.save()
+            # Convert the uploaded file to an image
+            input_path = uploaded_file.file.path
+            image = convert_pdf_to_images(input_path)
+            # Perform processing on the image here
+            # ...
+            # Return the image as a download
+            with open(image.filename, 'rb') as image_file:
+                image_bytes = image_file.read()
+            image_file = BytesIO(image_bytes)
+            response = FileResponse(image_file, as_attachment=True, filename=uploaded_file.file.name.replace('.pdf', '.png'))
+            return response
+        
 def my_view(request):
     file_upload_form = FileUploadForm()
     contact_form = ExcelToPDF()
