@@ -149,6 +149,33 @@
       </div>
     </div>
 
+    <hr>
+
+    <div class="col-md-4">
+      <div class="card m-2">
+        <h5 class="card-header">Merge PDF</h5>
+        <div class="card-body">
+          <h5 class="card-title">Select file</h5>
+          <p class="card-text"></p>
+          <form
+            method="post"
+            class="custom-file-input"
+            enctype="multipart/form-data"
+            action="bgremover/"
+          >
+            {% csrf_token %} {{ bgr.as_p }}
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              <span id="progress-text">0%</span>
+             
+            </div>
+            <p id="msg" style="color:green"></p>
+            <button type="submit" class="btn btn-warning">Load and Convert Pdf</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
 
   
   </div>
