@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import upload_word,upload_xls,index,upload_pdf,remove_background_view,upload_file
+from .views import upload_word,upload_xls,index,upload_pdf,remove_background_view,upload_file,merge_pdf
 
 urlpatterns = [
     path('', index, name='index'),
@@ -8,6 +8,7 @@ urlpatterns = [
     path('pdf/', upload_pdf, name='upload_pdf'),
     path('ppt/', upload_file, name='upload_pdf'),
     path('bgremover/', remove_background_view, name='remove_background_view'),
+    path('merge_pdf/', merge_pdf, name='merge_pdf'),
 
     
 ]
