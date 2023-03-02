@@ -26,3 +26,8 @@ class PptTOPdf(forms.ModelForm):
     class Meta:
         model = UploadedFile
         fields = ['file']
+
+class MergePdf(forms.ModelForm):
+    class Meta:
+        model = UploadedFile
+        fields = ['file']

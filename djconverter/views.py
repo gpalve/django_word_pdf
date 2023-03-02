@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import FileResponse, HttpResponse
 from io import BytesIO
-from .forms import FileUploadForm , ExcelToPDF,PdfToTxt,bgr,PptTOPdf
+from .forms import FileUploadForm , ExcelToPDF,PdfToTxt,bgr,PptTOPdf,MergePdf
 from .models import UploadedFile
 from docx2pdf import convert
 from io import BytesIO
@@ -36,7 +36,8 @@ def index(request):
         'excel_to_pdf': ExcelToPDF(),
         'pdf_to_txt': PdfToTxt(),
         'ppt_to_pdf': PptTOPdf(),
-        'bgr': bgr()
+        'bgr': bgr(),
+        'merge_pdf': MergePdf()
     }
     return render(request, 'upload_form.html',context)
 
@@ -226,3 +227,28 @@ def upload_file(request):
             pdf_file = BytesIO(pdf_bytes)
             response = FileResponse(pdf_file, as_attachment=True, filename=uploaded_file.file.name.replace('.ppt', '.pdf'))
             return response
+        
+
+def merge_pdf(request):
+    if request.method == 'POST':
+        # Get all uploaded files
+        pdf_files = request.FILES.getlist('pdf_files')
+        if len(pdf_files) < 2:
+            return render(request, 'error.html', {'error': 'Please select at least two PDF files.'})
+
+        # Merge PDF files
+        output_pdf = PyPDF2.PdfFileWriter()
+        for pdf in pdf_files:
+            input_pdf = PyPDF2.PdfFileReader(pdf)
+            for page in range(input_pdf.getNumPages()):
+                output_pdf.addPage(input_pdf.getPage(page))
+        merged_file_path = os.path.join(os.path.dirname(__file__), 'merged.pdf')
+        with open(merged_file_path, 'wb') as file:
+            output_pdf.write(file)
+
+        # Return the merged PDF file as a download
+        with open(merged_file_path, 'rb') as pdf_file:
+            pdf_bytes = pdf_file.read()
+        pdf_file = BytesIO(pdf_bytes)
+        response = FileResponse(pdf_file, as_attachment=True, filename='merged.pdf')
+        return response
